@@ -1,0 +1,50 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<div class="api-div">
+  <h2>Welcome to the Movies API</h2>
+  <h4>Currently available endpoints:</h4>
+  <ul>
+    <li>
+      Get all movies at:
+      <a href="http://localhost:8000/movies">http://localhost:8000/movies</a>
+    </li>
+    <li>Get a movie by id at: http://localhost:8000/movies/{movie_id}</li>
+    <li>
+      Get all people at:
+      <a href="http://localhost:8000/people">http://localhost:8000/people</a>
+    </li>
+    <li>Get a person by id at: http://localhost:8000/people/{person_id}</li>
+    <li>
+      Get all directors at:
+      <a href="http://localhost:8000/directors"
+        >http://localhost:8000/directors</a
+      >
+    </li>
+    <li>
+      Get a director by the person id:
+      http://localhost:8000/directors/people/{person_id}
+    </li>
+    <li>
+      Get a director by the movie id:
+      http://localhost:8000/directors/movies/{movie_id}
+    </li>
+  </ul>
+</div>
+
+<style>
+  .api-div {
+    display: flex;
+    flex-direction: column;
+    font-family: "Open Sans", sans-serif;
+  }
+  h4 {
+    margin: 5px 0px;
+  }
+
+  ul {
+    margin: 5px 0px;
+  }
+
+  li {
+    margin: 5px 0px;
+  }
+</style>
