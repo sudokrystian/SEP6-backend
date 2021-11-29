@@ -33,7 +33,7 @@ class People(models.Model):
 
 class Ratings(models.Model):
     id = models.IntegerField(primary_key=True)
-    movie = models.ForeignKey(Movies, models.DO_NOTHING)
+    movie = models.ForeignKey('Movies', on_delete=models.CASCADE)
     rating = models.FloatField()
     votes = models.IntegerField()
 
@@ -44,8 +44,8 @@ class Ratings(models.Model):
 
 class Stars(models.Model):
     id = models.IntegerField(primary_key=True)
-    movie = models.ForeignKey(Movies, models.DO_NOTHING)
-    person = models.ForeignKey(People, models.DO_NOTHING)
+    movie = models.ForeignKey('Movies', on_delete=models.CASCADE)
+    person = models.ForeignKey('People', on_delete=models.CASCADE)
 
     class Meta:
         managed = False
