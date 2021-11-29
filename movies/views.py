@@ -86,7 +86,7 @@ def registerUser(request):
             # If unique constrains fail server will return 500
             user.save()
         except KeyError:
-            return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}",status=500)
+            return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}",status=400)
 
         return HttpResponse("User " + username + " registered", status=200)
 
@@ -96,17 +96,16 @@ def becomeUser(request):
         json_data = json.loads(request.body)
         try:
             username_from_json = json_data['username']
-            # user = User.objects.get(username=username_from_json)
             password_from_json = json_data['password']
             user = authenticate(username = username_from_json, password=password_from_json)
             # if correct
             if user is not None:
                 login(request, user)
             else:
-                return HttpResponse("Incorrect login or password", status=500)
+                return HttpResponse("Incorrect login or password", status=401)
             
         except KeyError:
-            return HttpResponse("JSON format is incorrect. Please provide username and password", status=500)
+            return HttpResponse("JSON format is incorrect. Please provide username and password", status=400)
 
         return HttpResponse(status=200)
 
