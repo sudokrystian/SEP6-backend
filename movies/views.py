@@ -2,7 +2,7 @@ from django.template import loader
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from movies.models import Movies, People, Directors
+from movies.models import Movies, People, Directors, Ratings, Rating
 import json
 
 # Main page
@@ -37,7 +37,7 @@ def getPeople(request):
     return HttpResponse(people_list)
 # Get person by id
 def getPeopleById(request, person_id):
-    person = People.objects.filter(id=person_id).values()
+    person = People.objects.filter(id = person_id).values()
     if len(person) > 0:
         return HttpResponse(person)
     else:
@@ -55,7 +55,7 @@ def getDirectors(request):
 
 
 def getDirectorsByMovieId(request, movie_id):
-    directors_by_movie = Directors.objects.filter(movie_id=movie_id).values()
+    directors_by_movie = Directors.objects.filter(movie_id = movie_id).values()
     if len(directors_by_movie) > 0:
         return HttpResponse(directors_by_movie)
     else:
@@ -69,9 +69,53 @@ def getDirectorsByPersonId(request, person_id):
     else:
         return HttpResponse("No directors found for the person with id " + str(person_id), status=404)
 
-# =======================================================================================================
 
-# User # ===========================================================================================
+# ======================================================================================================
+
+# Ratings ==============================================================================================
+
+# def getRating(request):
+#     if request.method == 'PUT':
+#         json_data = json.loads(request.body)
+#         movie_id = json_data['movie_id']
+#         rating = json_data['rating']
+
+def getRating(request, movie_id):
+    rating_by_movie = Ratings.objects.filter(movie_id = movie_id).values()
+    if(len(rating_by_movie) > 0):
+        return HttpResponse(rating_by_movie)
+    else:
+        return HttpResponse("No rating found for the movie with an ID " + str(movie_id))
+
+def getAllRatings(request):
+    rating_list = list(Rating.objects.all().values())
+    return HttpResponse(rating_list)
+
+def getRating2(request, movie_id):
+    rating_by_movie = Rating.objects.filter(movie_id = movie_id).values()
+    if(len(rating_by_movie) > 0):
+        return HttpResponse(rating_by_movie)
+    else:
+        return HttpResponse("No rating found for the movie with an ID " + str(movie_id))
+
+def populateRatings(request):
+    ratings = Ratings.objects.all().values()
+    print(ratings[0]['rating'])
+    for rating in ratings:
+        amount_of_inputs = int(rating['votes'])
+        for x in range(amount_of_inputs):
+            rating_obj = Rating()
+            rating_obj.movie = Movies.objects.get(pk=rating['movie_id'])
+            rating_obj.user = User.objects.get(pk=1)
+            rating_obj.rating = rating['rating']
+            rating_obj.save()
+    return HttpResponse(ratings)
+        
+
+
+# ======================================================================================================
+
+# User =================================================================================================
 
 # Register the user
 def registerUser(request):
@@ -121,4 +165,8 @@ def getUsers(request):
         return HttpResponse(user_list)
     else:
         return HttpResponse("Only logged in users have access to this endpoint", status=403)
+
+def test(request):
+    print(request.user.id)
+    return HttpResponse(status=200)
     

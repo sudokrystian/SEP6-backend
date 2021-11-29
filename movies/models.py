@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Directors(models.Model):
@@ -40,6 +41,16 @@ class Ratings(models.Model):
     class Meta:
         managed = False
         db_table = 'ratings'
+
+class Rating(models.Model):
+    id = models.IntegerField(primary_key=True)
+    movie = models.ForeignKey('Movies', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.FloatField()
+
+    class Meta:
+        managed = False
+        db_table = 'rating'
 
 
 class Stars(models.Model):
