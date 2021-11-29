@@ -26,6 +26,13 @@ def getMovieById(request, movie_id):
         return HttpResponse(movie)
     else:
         return HttpResponse("No movie with id " + str(movie_id) + " found", status=404)
+# Get movie by name
+def getMovieByName(request, movie_name):
+    movie = Movies.objects.filter(title__contains=movie_name).values()
+    if len(movie) > 0:
+        return HttpResponse(movie)
+    else:
+        return HttpResponse("No movie with name " + str(movie_name) + " found", status=404)
 
 # =======================================================================================================
 

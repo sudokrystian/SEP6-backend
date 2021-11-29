@@ -10,6 +10,8 @@ urlpatterns = [
     path('movies', views.getMovies, name='All movies'),
     # /movies/{movie_id}/
     path('movies/<int:movie_id>/', views.getMovieById, name='Movie by ID'),
+    # /movies/name/{movie_name}
+    path('movies/<str:movie_name>/', views.getMovieByName, name='Movie by name'),
 
     # People ================================================================================================
     # /people/
