@@ -22,7 +22,10 @@ def getMovies(request):
 # Get movie by id
 def getMovieById(request, movie_id):
     movie = Movies.objects.filter(id=movie_id).values()
-    return HttpResponse(movie)
+    if len(movie) > 0:
+        return HttpResponse(movie)
+    else:
+        return HttpResponse("No movie with id " + str(movie_id) + " found", status=404)
 
 # =======================================================================================================
 
@@ -35,7 +38,11 @@ def getPeople(request):
 # Get person by id
 def getPeopleById(request, person_id):
     person = People.objects.filter(id=person_id).values()
-    return HttpResponse(person)
+    if len(person) > 0:
+        return HttpResponse(person)
+    else:
+        return HttpResponse("No person with id " + str(person) + " found", status=404)
+
 
 # =======================================================================================================
 
@@ -49,13 +56,18 @@ def getDirectors(request):
 
 def getDirectorsByMovieId(request, movie_id):
     directors_by_movie = Directors.objects.filter(movie_id=movie_id).values()
-    return HttpResponse(directors_by_movie)
+    if len(directors_by_movie) > 0:
+        return HttpResponse(directors_by_movie)
+    else:
+        return HttpResponse("No directors found for the movie with id " + str(movie_id), status=404)
 
 
 def getDirectorsByPersonId(request, person_id):
-    directors_by_person = Directors.objects.filter(
-        person_id=person_id).values()
-    return HttpResponse(directors_by_person)
+    directors_by_person = Directors.objects.filter(person_id=person_id).values()
+    if len(directors_by_person) > 0:
+        return HttpResponse(directors_by_person)
+    else:
+        return HttpResponse("No directors found for the person with id " + str(person_id), status=404)
 
 # =======================================================================================================
 
