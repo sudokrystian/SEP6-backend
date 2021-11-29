@@ -1,6 +1,7 @@
 from django.template import loader
 from django.http import HttpResponse
-from movies.models import Movies, People, Directors
+from movies.models import Movies, People, Directors, User
+import json
 
 # Main page
 
@@ -53,3 +54,23 @@ def getDirectorsByPersonId(request, person_id):
     directors_by_person = Directors.objects.filter(
         person_id=person_id).values()
     return HttpResponse(directors_by_person)
+
+def getUsers(request):
+    if request.method == 'PUT':
+        json_data = json.loads(request.body)
+        try:
+            user = User()
+            # If json data doesn't exist return autoamtically returns 500
+            username = json_data['username']
+            email = json_data['email']
+            password = json_data['password']
+            user.username = username
+            user.email = email
+            user.password = password
+            # If unique constrains fail server will return 500
+            user.save()
+        except KeyError:
+            return HttpResponse(status=500)
+
+        return HttpResponse(status=200)
+    

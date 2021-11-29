@@ -18,4 +18,6 @@ urlpatterns = [
     path('directors/movies/<int:movie_id>', views.getDirectorsByMovieId, name='Director by movie ID'),
     # /directors/people/{person_id}
     path('directors/people/<int:person_id>', views.getDirectorsByPersonId, name='Director by person ID'),
+    # /user
+    path('user', views.getUsers, name='Get users'),
 ]

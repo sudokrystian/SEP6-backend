@@ -50,3 +50,13 @@ class Stars(models.Model):
     class Meta:
         managed = False
         db_table = 'stars'
+
+class User(models.Model):
+    id = models.IntegerField(primary_key=True)
+    username = models.TextField()
+    email = models.EmailField()
+    password = models.TextField()
+
+    class Meta:
+        managed = False
+        db_table = "user"
