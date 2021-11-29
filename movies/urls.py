@@ -18,6 +18,13 @@ urlpatterns = [
     path('directors/movies/<int:movie_id>', views.getDirectorsByMovieId, name='Director by movie ID'),
     # /directors/people/{person_id}
     path('directors/people/<int:person_id>', views.getDirectorsByPersonId, name='Director by person ID'),
-    # /user
-    path('user', views.getUsers, name='Get users'),
+    # /register
+    path('register', views.registerUser, name='Register the user'),
+    # /login
+    path('login', views.becomeUser, name='Login'),
+    # /logout
+    path('logout', views.logout_from_service, name='Logout'),
+    # /users This one will be deleted but for now it is running only if you are authenticated
+    path('users', views.getUsers, name='Get all users'),
+    
 ]
