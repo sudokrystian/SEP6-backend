@@ -3,17 +3,18 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.forms.models import model_to_dict
-from collections import defaultdict
 from movies.models import Movies, People, Directors, Ratings, MovieList
+import requests
 import json
 
-# Main page
+API_KEY = "ea8b367c3b33beb9d31bc05cd0726c57"
+API_URL = "https://api.themoviedb.org/3/"
+aaa = "https://api.themoviedb.org/3/trending/movie/week?api_key=ea8b367c3b33beb9d31bc05cd0726c57"
 
+# Main page
 def getIndex(request):
     template = loader.get_template('./main/index.html')
     return HttpResponse(template.render())
-    # return HttpResponse("Welcome to the main page")
-
 
 # Movies ================================================================================================
 
@@ -21,13 +22,22 @@ def getIndex(request):
 def getMovies(request):
     movie_list = list(Movies.objects.all().values())
     return HttpResponse(movie_list)
+
+def getTrendingMovies(request):
+    parameters = {'api_key': API_KEY}
+    api_path = "trending/movie/week"
+    request = API_URL + api_path
+    request_answer = requests.get(url = request, params=parameters)
+    return HttpResponse(request_answer)
+
 # Get movie by id
 def getMovieById(request, movie_id):
-    movie = Movies.objects.filter(id=movie_id).values()
-    if len(movie) > 0:
-        return HttpResponse(movie)
-    else:
-        return HttpResponse("No movie with id " + str(movie_id) + " found", status=404)
+    parameters = {'api_key': API_KEY}
+    api_path = "movie/" + str(movie_id)
+    request = API_URL + api_path
+    request_answer = requests.get(url = request, params=parameters)
+    return HttpResponse(request_answer)
+
 # Get movie by name
 def getMovieByName(request, movie_name):
     movie = Movies.objects.filter(title__contains=movie_name).values()

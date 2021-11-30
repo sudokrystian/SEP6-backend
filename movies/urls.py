@@ -12,6 +12,8 @@ urlpatterns = [
     path('movies/<int:movie_id>/', views.getMovieById, name='Movie by ID'),
     # /movies/name/{movie_name}
     path('movies/<str:movie_name>/', views.getMovieByName, name='Movie by name'),
+    # /movies/trading
+    path('movies/trending', views.getTrendingMovies, name='Get trading movies'),
 
     # People ================================================================================================
     # /people/
