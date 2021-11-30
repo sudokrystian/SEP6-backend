@@ -3,13 +3,12 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.forms.models import model_to_dict
-from movies.models import Movies, People, Directors, Ratings, MovieList
+from movies.models import MovieList, Rating
 import requests
 import json
 
 API_KEY = "ea8b367c3b33beb9d31bc05cd0726c57"
 API_URL = "https://api.themoviedb.org/3/"
-aaa = "https://api.themoviedb.org/3/trending/movie/week?api_key=ea8b367c3b33beb9d31bc05cd0726c57"
 
 # Main page
 def getIndex(request):
@@ -18,89 +17,112 @@ def getIndex(request):
 
 # Movies ================================================================================================
 
-# Get all movies
-def getMovies(request):
-    movie_list = list(Movies.objects.all().values())
-    return HttpResponse(movie_list)
-
+# Get the movies that are trending this week
 def getTrendingMovies(request):
-    parameters = {'api_key': API_KEY}
-    api_path = "trending/movie/week"
-    request = API_URL + api_path
-    request_answer = requests.get(url = request, params=parameters)
-    return HttpResponse(request_answer)
+    if(request.method == 'GET'):
+        parameters = {'api_key': API_KEY}
+        api_path = "trending/movie/week"
+        request = API_URL + api_path
+        request_answer = requests.get(url = request, params=parameters)
+        return HttpResponse(request_answer)
+    else:
+        return HttpResponse("Endpoint not found", status=404)
 
 # Get movie by id
 def getMovieById(request, movie_id):
-    parameters = {'api_key': API_KEY}
-    api_path = "movie/" + str(movie_id)
-    request = API_URL + api_path
-    request_answer = requests.get(url = request, params=parameters)
-    return HttpResponse(request_answer)
-
-# Get movie by name
-def getMovieByName(request, movie_name):
-    movie = Movies.objects.filter(title__contains=movie_name).values()
-    if len(movie) > 0:
-        return HttpResponse(movie)
+    if(request.method == 'GET'):
+        parameters = {'api_key': API_KEY}
+        api_path = "movie/" + str(movie_id)
+        request = API_URL + api_path
+        request_answer = requests.get(url = request, params=parameters)
+        return HttpResponse(request_answer)
     else:
-        return HttpResponse("No movie with name " + str(movie_name) + " found", status=404)
-
+        return HttpResponse("Endpoint not found", status=404)
 # =======================================================================================================
 
 # People ================================================================================================
 
-# Get all people
-def getPeople(request):
-    people_list = list(People.objects.all().values())
-    return HttpResponse(people_list)
 # Get person by id
-def getPeopleById(request, person_id):
-    person = People.objects.filter(id = person_id).values()
-    if len(person) > 0:
-        return HttpResponse(person)
+def getPersonById(request, person_id):
+    if(request.method == 'GET'):
+        parameters = {'api_key': API_KEY}
+        api_path = "person/" + str(person_id)
+        request = API_URL + api_path
+        request_answer = requests.get(url = request, params=parameters)
+        return HttpResponse(request_answer, status=request_answer.status_code)
     else:
-        return HttpResponse("No person with id " + str(person) + " found", status=404)
+        return HttpResponse("Endpoint not found", status=404)
 
 
 # =======================================================================================================
 
-# Directors # ===========================================================================================
-
-# Get all directors
-def getDirectors(request):
-    directors_list = list(Directors.objects.all().values())
-    return HttpResponse(directors_list)
-
-
-def getDirectorsByMovieId(request, movie_id):
-    directors_by_movie = Directors.objects.filter(movie_id = movie_id).values()
-    if len(directors_by_movie) > 0:
-        return HttpResponse(directors_by_movie)
-    else:
-        return HttpResponse("No directors found for the movie with id " + str(movie_id), status=404)
-
-
-def getDirectorsByPersonId(request, person_id):
-    directors_by_person = Directors.objects.filter(person_id=person_id).values()
-    if len(directors_by_person) > 0:
-        return HttpResponse(directors_by_person)
-    else:
-        return HttpResponse("No directors found for the person with id " + str(person_id), status=404)
-
-
-# ======================================================================================================
-
 # Ratings ==============================================================================================
+
+# Post rating for the movie
+def addRating(request):
+    if request.user.is_authenticated:
+        if(request.method == 'PUT'):
+            try:
+                json_data = json.loads(request.body)
+                user = User.objects.get(pk=request.user.id)
+                movie_id = json_data['movie_id']
+                rating = json_data['rating']
+                # If the user voted for this movie already, return 409
+                print(Rating.objects.filter(user = user, movie_id= movie_id).values())
+                if(len(Rating.objects.filter(user = user, movie_id= movie_id).values()) != 0):
+                    return HttpResponse("The user already rated the movie", status=409)
+                rating = Rating.objects.create(
+                    user = user, 
+                    movie_id = movie_id, 
+                    rating = rating
+                    )
+                return HttpResponse(rating, status=200)
+            except KeyError:
+                return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', rating:'value'}",status=400)
+        else:
+            return HttpResponse("Endpoint not found", status=404)
+    else:
+        return HttpResponse("Only logged in users have access to this endpoint", status=403)
 
 # Get ratings for the movie
 def getRatingsByMovie(request, movie_id):
-    rating_by_movie = Ratings.objects.filter(movie_id = movie_id).values()
-    if(len(rating_by_movie) > 0):
-        return HttpResponse(rating_by_movie)
+    if(request.method == 'GET'):
+        ratings = Rating.objects.filter(movie_id = movie_id).values()
+        if(len(ratings) != 0):
+            return HttpResponse(ratings, status=200)
+        else:
+            return HttpResponse("No ratings found", status=404)
     else:
-        return HttpResponse("No rating found for the movie with an ID " + str(movie_id), status=404)      
+        return HttpResponse("Endpoint not found", status=404)
 
+def getRatingsByUser(request):
+    if request.user.is_authenticated:
+        if(request.method == 'GET'):
+            user = User.objects.get(pk=request.user.id)
+            ratings = Rating.objects.filter(user = user).values()
+            if(len(ratings) != 0):
+                return HttpResponse(ratings, status=200)
+            else:
+                return HttpResponse("No ratings found", status=404)
+        else:
+            return HttpResponse("Endpoint not found", status=404)
+    else:
+        return HttpResponse("Only logged in users have access to this endpoint", status=403)
+
+# Get ratings for the movie for the specified user
+def getUserRatingForTheMovie(request, movie_id):
+    if request.user.is_authenticated:
+        if(request.method == 'GET'):
+            user = User.objects.get(pk=request.user.id)
+            ratings = Rating.objects.filter(movie_id = movie_id, user = user).values()
+            if(len(ratings) != 0):
+                return HttpResponse(ratings, status=200)
+            else:
+                return HttpResponse("No ratings found", status=404)
+        else:
+            return HttpResponse("Endpoint not found", status=404)
+    else:
+        return HttpResponse("Only logged in users have access to this endpoint", status=403)
 
 # ======================================================================================================
 
@@ -111,12 +133,10 @@ def movieLists(request):
     if request.user.is_authenticated:
         if(request.method == 'GET'):
             lists_by_user = MovieList.objects.filter(user = request.user.id).values()
-            # print(lists_by_user)
-
             dictionary = {}
             for list in lists_by_user:
                 movie_id = list['movie_id']
-                movie = Movies.objects.get(pk=movie_id)
+                movie = movie_id
                 if list['list_name'] not in dictionary:
                     dictionary[list['list_name']] = []
                 dictionary[list['list_name']].append(model_to_dict(movie))
@@ -131,14 +151,14 @@ def movieLists(request):
                 list_name = json_data['list_name']
                 list = MovieList.objects.create(
                     user = User.objects.get(pk=request.user.id), 
-                    movie = Movies.objects.get(pk=movie_id), 
+                    movie = movie_id, 
                     list_name = list_name
                     )
                 return HttpResponse(list, status=200)
             except KeyError:
                 return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_name:'value'}",status=400)
         else:
-            return HttpResponse("Only logged in users have access to this endpoint", status=403)
+            return HttpResponse("Endpoint not found", status=404)
     else: 
         return HttpResponse("Only logged in users have access to this endpoint", status=403)
         
@@ -159,10 +179,13 @@ def registerUser(request):
             user = User.objects.create_user(username, email, password)
             # If unique constrains fail server will return 500
             user.save()
+            return HttpResponse("User " + username + " registered", status=200)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}",status=400)
+    else:
+        return HttpResponse("Endpoint not found", status=404)
 
-        return HttpResponse("User " + username + " registered", status=200)
+        
 
 # Login and become the user
 def becomeUser(request):
@@ -180,6 +203,9 @@ def becomeUser(request):
                 return HttpResponse("Incorrect login or password", status=401)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please provide username and password", status=400)
+    else:
+        return HttpResponse("Endpoint not found", status=404)
+
 
         
 
@@ -187,13 +213,5 @@ def becomeUser(request):
 def logout_from_service(request):
     logout(request)
     return HttpResponse("User logged out", status=200)
-
-# Dev endpoint, to be deleted. Returns all users if you are logged in
-def getUsers(request):
-    if request.user.is_authenticated:
-        user_list = list(User.objects.all().values())
-        return HttpResponse(user_list)
-    else:
-        return HttpResponse("Only logged in users have access to this endpoint", status=403)
 
     
