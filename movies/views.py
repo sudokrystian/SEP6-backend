@@ -2,7 +2,9 @@ from django.template import loader
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
-from movies.models import Movies, People, Directors, Ratings, Rating
+from django.forms.models import model_to_dict
+from collections import defaultdict
+from movies.models import Movies, People, Directors, Ratings, MovieList
 import json
 
 # Main page
@@ -26,6 +28,13 @@ def getMovieById(request, movie_id):
         return HttpResponse(movie)
     else:
         return HttpResponse("No movie with id " + str(movie_id) + " found", status=404)
+# Get movie by name
+def getMovieByName(request, movie_name):
+    movie = Movies.objects.filter(title__contains=movie_name).values()
+    if len(movie) > 0:
+        return HttpResponse(movie)
+    else:
+        return HttpResponse("No movie with name " + str(movie_name) + " found", status=404)
 
 # =======================================================================================================
 
@@ -74,44 +83,55 @@ def getDirectorsByPersonId(request, person_id):
 
 # Ratings ==============================================================================================
 
-# def getRating(request):
-#     if request.method == 'PUT':
-#         json_data = json.loads(request.body)
-#         movie_id = json_data['movie_id']
-#         rating = json_data['rating']
-
-def getRating(request, movie_id):
+# Get ratings for the movie
+def getRatingsByMovie(request, movie_id):
     rating_by_movie = Ratings.objects.filter(movie_id = movie_id).values()
     if(len(rating_by_movie) > 0):
         return HttpResponse(rating_by_movie)
     else:
-        return HttpResponse("No rating found for the movie with an ID " + str(movie_id))
+        return HttpResponse("No rating found for the movie with an ID " + str(movie_id), status=404)      
 
-def getAllRatings(request):
-    rating_list = list(Rating.objects.all().values())
-    return HttpResponse(rating_list)
 
-def getRating2(request, movie_id):
-    rating_by_movie = Rating.objects.filter(movie_id = movie_id).values()
-    if(len(rating_by_movie) > 0):
-        return HttpResponse(rating_by_movie)
-    else:
-        return HttpResponse("No rating found for the movie with an ID " + str(movie_id))
+# ======================================================================================================
 
-def populateRatings(request):
-    ratings = Ratings.objects.all().values()
-    print(ratings[0]['rating'])
-    for rating in ratings:
-        amount_of_inputs = int(rating['votes'])
-        for x in range(amount_of_inputs):
-            rating_obj = Rating()
-            rating_obj.movie = Movies.objects.get(pk=rating['movie_id'])
-            rating_obj.user = User.objects.get(pk=1)
-            rating_obj.rating = rating['rating']
-            rating_obj.save()
-    return HttpResponse(ratings)
+# Movie lists =========================================================================================
+
+# Get movie list for the user or create a new movie list
+def movieLists(request):
+    if request.user.is_authenticated:
+        if(request.method == 'GET'):
+            lists_by_user = MovieList.objects.filter(user = request.user.id).values()
+            # print(lists_by_user)
+
+            dictionary = {}
+            for list in lists_by_user:
+                movie_id = list['movie_id']
+                movie = Movies.objects.get(pk=movie_id)
+                if list['list_name'] not in dictionary:
+                    dictionary[list['list_name']] = []
+                dictionary[list['list_name']].append(model_to_dict(movie))
+            if(len(lists_by_user) > 0):
+                return HttpResponse(json.dumps(dictionary))
+            else:
+                return HttpResponse("No movie lists found for the user with an ID " + str(request.user.id), status=404)  
+        elif(request.method == 'PUT'):
+            try:
+                json_data = json.loads(request.body)
+                movie_id = json_data['movie_id']
+                list_name = json_data['list_name']
+                list = MovieList.objects.create(
+                    user = User.objects.get(pk=request.user.id), 
+                    movie = Movies.objects.get(pk=movie_id), 
+                    list_name = list_name
+                    )
+                return HttpResponse(list, status=200)
+            except KeyError:
+                return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_name:'value'}",status=400)
+        else:
+            return HttpResponse("Only logged in users have access to this endpoint", status=403)
+    else: 
+        return HttpResponse("Only logged in users have access to this endpoint", status=403)
         
-
 
 # ======================================================================================================
 
@@ -145,13 +165,13 @@ def becomeUser(request):
             # if correct
             if user is not None:
                 login(request, user)
+                return HttpResponse("User logged in", status=200)
             else:
                 return HttpResponse("Incorrect login or password", status=401)
-            
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please provide username and password", status=400)
 
-        return HttpResponse(status=200)
+        
 
 # Remove yourself from session == logout
 def logout_from_service(request):
@@ -166,7 +186,4 @@ def getUsers(request):
     else:
         return HttpResponse("Only logged in users have access to this endpoint", status=403)
 
-def test(request):
-    print(request.user.id)
-    return HttpResponse(status=200)
     
