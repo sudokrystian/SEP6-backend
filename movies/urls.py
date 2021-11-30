@@ -8,6 +8,8 @@ urlpatterns = [
     # Movies ================================================================================================
     # /movies/{movie_id}/
     path('movies/<int:movie_id>/', views.getMovieById, name='Movie by ID'),
+    # /movies/{movie_id}/credits
+    path('movies/<int:movie_id>/credits', views.getMovieCrew, name='Movie by ID'),
     # /movies/trading
     path('movies/trending', views.getTrendingMovies, name='Get trading movies'),
 

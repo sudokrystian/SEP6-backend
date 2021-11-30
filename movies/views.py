@@ -38,6 +38,17 @@ def getMovieById(request, movie_id):
         return HttpResponse(request_answer)
     else:
         return HttpResponse("Endpoint not found", status=404)
+
+# Get movie cast
+def getMovieCrew(request, movie_id):
+    if(request.method == 'GET'):
+        parameters = {'api_key': API_KEY}
+        api_path = "movie/" + str(movie_id) + "/credits"
+        request = API_URL + api_path
+        request_answer = requests.get(url = request, params=parameters)
+        return HttpResponse(request_answer)
+    else:
+        return HttpResponse("Endpoint not found", status=404)
 # =======================================================================================================
 
 # People ================================================================================================
