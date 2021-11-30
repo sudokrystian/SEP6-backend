@@ -28,11 +28,12 @@ urlpatterns = [
     path('directors/people/<int:person_id>', views.getDirectorsByPersonId, name='Director by person ID'),
 
     # Ratings ==============================================================================================
-    path('rating', views.getAllRatings, name='Get all ratings'),
-    path('ratings/movies/<int:movie_id>', views.getRating, name='Get all ratings for the movie'),
-    path('rating/movies/<int:movie_id>', views.getRating2, name='Get all ratings for the movie'),
-    path('rating/populate', views.populateRatings, name='Ugabuga'),
+    # ratings/movies/{movie_id}
+    path('ratings/movies/<int:movie_id>', views.getRatingsByMovie, name='Get all ratings for the movie'),
 
+    # Movie lists ==========================================================================================
+    # /list
+    path('list', views.movieLists, name='Find the lists for the user or create a new one'),
 
     # User =================================================================================================
     # /register
@@ -41,9 +42,8 @@ urlpatterns = [
     path('login', views.becomeUser, name='Login'),
     # /logout
     path('logout', views.logout_from_service, name='Logout'),
-    # /users This one will be deleted but for now it is running only if you are authenticated
+    # This one will be deleted but for now it is running only if you are authenticated
+    # /users 
     path('users', views.getUsers, name='Get all users'),
-    # test
-    path('test', views.test, name="test")
     
 ]
