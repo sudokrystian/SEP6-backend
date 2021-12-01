@@ -1,8 +1,9 @@
 from django.template import loader
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.forms.models import model_to_dict
+from django.db.utils import IntegrityError
 from movies.models import MovieList, Rating
 import requests
 import json
@@ -186,9 +187,12 @@ def registerUser(request):
             username = json_data['username']
             email = json_data['email']
             password = json_data['password']
-            user = User.objects.create_user(username, email, password)
-            # If unique constrains fail server will return 500
-            user.save()
+            try:
+                user = User.objects.create_user(username, email, password)
+                # If unique constrains fail server will return 500
+                user.save()
+            except IntegrityError:
+                return HttpResponse("User " + username + " already exists", status=409)
             return HttpResponse("User " + username + " registered", status=200)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}",status=400)
@@ -223,5 +227,4 @@ def becomeUser(request):
 def logout_from_service(request):
     logout(request)
     return HttpResponse("User logged out", status=200)
-
     

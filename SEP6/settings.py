@@ -26,7 +26,8 @@ SECRET_KEY = 'django-insecure-r+@yn4u7b6ql7frhptg51^2h7pf!ihid70%wz^r$1pb8k%!2t*
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'django-webservice.azurewebsites.net'
+    'django-webservice.azurewebsites.net',
+    'localhost'
 ]
 
 
