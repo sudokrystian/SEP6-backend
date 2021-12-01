@@ -1,10 +1,9 @@
 from django.template import loader
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
 from django.forms.models import model_to_dict
 from movies.models import MovieList, Rating
-from .utility import authenticate_custom
 import requests
 import json
 
@@ -187,12 +186,7 @@ def registerUser(request):
             username = json_data['username']
             email = json_data['email']
             password = json_data['password']
-            user = User()
-            user.username = username
-            user.email = email
-            user.password = password
-            user.save()
-            # user = User.objects.create_user(username, email, password)
+            user = User.objects.create_user(username, email, password)
             # If unique constrains fail server will return 500
             user.save()
             return HttpResponse("User " + username + " registered", status=200)
@@ -210,8 +204,7 @@ def becomeUser(request):
         try:
             username_from_json = json_data['username']
             password_from_json = json_data['password']
-            # user = authenticate(username = username_from_json, password=password_from_json)
-            user = authenticate_custom(username = username_from_json, password=password_from_json)
+            user = authenticate(username = username_from_json, password=password_from_json)
             # if correct
             if user is not None:
                 login(request, user)
@@ -230,12 +223,4 @@ def becomeUser(request):
 def logout_from_service(request):
     logout(request)
     return HttpResponse("User logged out", status=200)
-
-def test(request):
-    if(request.user.is_authenticated):
-        print("authenticated")
-    else:
-        print('not authenticated')
-    return HttpResponse("test")
-
     
