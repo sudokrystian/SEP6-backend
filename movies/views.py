@@ -79,7 +79,6 @@ def addRating(request):
                 movie_id = json_data['movie_id']
                 rating = json_data['rating']
                 # If the user voted for this movie already, return 409
-                print(Rating.objects.filter(user = user, movie_id= movie_id).values())
                 if(len(Rating.objects.filter(user = user, movie_id= movie_id).values()) != 0):
                     return HttpResponse("The user already rated the movie", status=409)
                 rating = Rating.objects.create(
