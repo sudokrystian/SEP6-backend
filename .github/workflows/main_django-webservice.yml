@@ -8,7 +8,7 @@ on:
   push:
     branches:
       - main
-      - fixing-the-pipeline
+      - permission-pipeline-issues
   workflow_dispatch:
 
 jobs:
@@ -23,10 +23,10 @@ jobs:
         with:
           python-version: '3.8'
 
-      - name: Create and start virtual environment
-        run: |
-          python -m venv venv
-          source venv/bin/activate
+#       - name: Create and start virtual environment
+#         run: |
+#           python -m venv venv
+#           source venv/bin/activate
       
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -47,17 +47,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: django-app
-          path: |
-            . 
-            !venv/
-            
-      - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
-        id: deploy-to-webapp
-        with:
-          app-name: 'django-webservice'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_15389E91C44247A6B4CFE00CAC05D1A7 }}
+          path: .
+#           path: |
+#             . 
+#             !venv/
 
   deploy:
     runs-on: ubuntu-latest
