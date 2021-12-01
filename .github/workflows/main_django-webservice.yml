@@ -23,10 +23,10 @@ jobs:
         with:
           python-version: '3.8'
 
-#       - name: Create and start virtual environment
-#         run: |
-#           python -m venv venv
-#           source venv/bin/activate
+      - name: Create and start virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
       
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -47,10 +47,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: django-app
-          path: .
-#           path: |
-#             . 
-#             !venv/
+          path: |
+            . 
+            !venv/
 
   deploy:
     runs-on: ubuntu-latest
