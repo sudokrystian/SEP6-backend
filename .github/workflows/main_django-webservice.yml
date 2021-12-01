@@ -50,6 +50,14 @@ jobs:
           path: |
             . 
             !venv/
+            
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v2
+        id: deploy-to-webapp
+        with:
+          app-name: 'django-webservice'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_15389E91C44247A6B4CFE00CAC05D1A7 }}
 
   deploy:
     runs-on: ubuntu-latest
