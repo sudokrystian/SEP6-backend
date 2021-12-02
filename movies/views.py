@@ -238,6 +238,8 @@ def movieLists(request):
 # Register the user
 def registerUser(request):
     if request.method == 'PUT':
+        if request.user.is_authenticated:
+            return HttpResponse("User is already logged in", status=409)
         json_data = json.loads(request.body)
         try:
             # If json data doesn't exist return autoamtically returns 500
@@ -257,6 +259,8 @@ def registerUser(request):
 # Login and become the user
 def becomeUser(request):
     if(request.method == 'POST'):
+        if request.user.is_authenticated:
+            return HttpResponse("User is already logged in", status=409)
         json_data = json.loads(request.body)
         try:
             username_from_json = json_data['username']
@@ -277,5 +281,7 @@ def becomeUser(request):
 
 # Remove yourself from session == logout
 def logout_from_service(request):
+    if not request.user.is_authenticated:
+        return HttpResponse("User is not logged in", status=409)
     logout(request)
     return HttpResponse("User logged out", status=200)
