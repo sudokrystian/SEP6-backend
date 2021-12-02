@@ -12,10 +12,14 @@ urlpatterns = [
     path('movies/<int:movie_id>/credits', views.getMovieCrew, name='Movie by ID'),
     # /movies/trading
     path('movies/trending', views.getTrendingMovies, name='Get trading movies'),
-
+    # /search/movie/page/<int:page>/name/<str:name>
+    path('search/movie/page/<int:page_number>/name/<str:movie_name>', views.findMoviesByName, name='Find movie by name'),
     # People ================================================================================================
     # /people/{person_id}/
     path('people/<int:person_id>/', views.getPersonById, name='Get person by ID'),
+    # search/people/page/<int:page>/name/<str:name>
+    path('search/people/page/<int:page_number>/name/<str:person_name>', views.findPeopleByName, name='Find people by name`'),
+
 
     # Ratings ==============================================================================================
     # rating/movies/{movie_id}
