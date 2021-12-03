@@ -1,0 +1,38 @@
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<div class="api-div">
+  <h2>Welcome to the Movies API</h2>
+  <h4>Currently available endpoints:</h4>
+  <ul>
+    <li>Last week tranding movies: /movies/trending</li>
+    <li>Get movie by ID: /movies/{movie_id}</li>
+    <li>Get movie crew by movie ID: /movies/{movie_id}/credits</li>
+    <li>Get person by ID: /people/{person_id}</li>
+    <li>Get all the ratings for the movie: rating/movies/{movie_id}</li>
+    <li>Get the movie rating given by the logged in user: /rating/user/{movie_id}</li>
+    <li>Get all the ratings given away by the user: /rating/user</li>
+    <li>Put new rating to the movie: /rating</li>
+    <li>Get the lists for the user or put a new one: /list</li>
+    <li>Put the user in (register): /register</li>
+    <li>Post the user to log in: /login</li>
+    <li>Logout: /logout</li>
+  </ul>
+</div>
+
+<style>
+  .api-div {
+    display: flex;
+    flex-direction: column;
+    font-family: "Open Sans", sans-serif;
+  }
+  h4 {
+    margin: 5px 0px;
+  }
+
+  ul {
+    margin: 5px 0px;
+  }
+
+  li {
+    margin: 5px 0px;
+  }
+</style>
