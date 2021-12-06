@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.template import loader
 from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
@@ -161,8 +162,8 @@ class UserMovieRating(APIView):
         ratings = Rating.objects.filter(
             movie_id=movie_id, user=user).values()
         if(len(ratings) != 0):
-            data = serializers.serialize('json', ratings)
-            return HttpResponse(data, status=200)
+            serialized_values = json.dumps(list(ratings), cls=DjangoJSONEncoder)
+            return HttpResponse(serialized_values, status=200)
         else:
             return HttpResponse("No ratings found", status=404)
 
@@ -170,10 +171,10 @@ class UserMovieRating(APIView):
 class MovieRating(APIView):
     # Get all the ratings for the movie with the specified id
     def get(self, request, movie_id):
-        ratings = Rating.objects.filter(movie_id=movie_id)
+        ratings = Rating.objects.filter(movie_id=movie_id).values()
         if(len(ratings) != 0):
-            data = serializers.serialize('json', ratings)
-            return HttpResponse(data, status=200)
+            serialized_values = json.dumps(list(ratings), cls=DjangoJSONEncoder)
+            return HttpResponse(serialized_values, status=200)
         else:
             return HttpResponse("No ratings found", status=404)
 
@@ -186,8 +187,8 @@ class UserRatings(APIView):
         user = User.objects.get(pk=request.user.id)
         ratings = Rating.objects.filter(user=user).values()
         if(len(ratings) != 0):
-            data = serializers.serialize('json', ratings)
-            return HttpResponse(data, status=200)
+            serialized_values = json.dumps(list(ratings), cls=DjangoJSONEncoder)
+            return HttpResponse(serialized_values, status=200)
         else:
             return HttpResponse("No ratings found", status=404)
 # ======================================================================================================
