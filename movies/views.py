@@ -109,7 +109,7 @@ class PeopleByName(APIView):
 
 
 class AddRating(APIView):
-    permission_class = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
     # Add a new rating
     def put(self, request):
         try:
@@ -131,7 +131,7 @@ class AddRating(APIView):
 
 
 class UserMovieRating(APIView):
-    permission_class = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
     # Get ratings for the movie for the specified user
 
     def get(self, request, movie_id):
@@ -155,7 +155,7 @@ class MovieRating(APIView):
 
 
 class UserRatings(APIView):
-    permission_class = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     # Get all the ratings given away by the user
 
     def get(self, request):
@@ -172,7 +172,7 @@ class UserRatings(APIView):
 
 
 class MovieLists(APIView):
-    permission_class = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
     # Get movie list for the user or create a new movie list
     def get(self, request):
         lists_by_user = MovieList.objects.filter(user=request.user.id).values()
