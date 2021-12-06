@@ -3,6 +3,7 @@ from django.template import loader
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
+from django.shortcuts import get_object_or_404
 
 from movies.models import MovieList, Rating
 
@@ -128,6 +129,20 @@ class AddRating(APIView):
             return HttpResponse(rating, status=200)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', rating:'value'}", status=400)
+    # Update the current rating of the movie
+    def post(self, request):
+        try:
+            json_data = json.loads(request.body)
+            user = User.objects.get(pk=request.user.id)
+            rating_id = json_data['rating_id']
+            newRating = json_data['rating']
+            rating = get_object_or_404(Rating, pk=rating_id)
+            rating.rating = newRating
+            # If the user voted for this movie already, return 409
+            rating.save()
+            return HttpResponse(rating, status=200)
+        except KeyError:
+            return HttpResponse("JSON format is incorrect. Please use {rating_id:'value', rating:'value'}", status=400)
 
 
 class UserMovieRating(APIView):
@@ -161,7 +176,6 @@ class UserRatings(APIView):
     def get(self, request):
         user = User.objects.get(pk=request.user.id)
         ratings = Rating.objects.filter(user=user).values()
-        print(ratings.dates)
         if(len(ratings) != 0):
             return HttpResponse(ratings, status=200)
         else:

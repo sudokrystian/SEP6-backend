@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import datetime
 
 class MovieList(models.Model):
     id = models.IntegerField(primary_key=True)
@@ -12,4 +13,4 @@ class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     movie_id = models.IntegerField()
     rating = models.IntegerField()
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.CharField(max_length=50, default=datetime.datetime.now().isoformat())
