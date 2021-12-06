@@ -14,6 +14,12 @@ from rest_framework.permissions import IsAuthenticated
 import requests
 import json
 
+# Only for development ===========================
+from datetime import timedelta
+import datetime
+import random
+# ================================================
+
 API_KEY = "ea8b367c3b33beb9d31bc05cd0726c57"
 API_URL = "https://api.themoviedb.org/3/"
 
@@ -233,3 +239,35 @@ class RegisterUser(APIView):
             return HttpResponse("User " + username + " registered", status=200)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}", status=400)
+
+
+
+# Development =================================================================================================
+
+def test(request):
+    user = User.objects.get(pk=1)
+    today = datetime.datetime.now()
+    for x in range(20):
+        Rating.objects.create(
+                    user=user,
+                    movie_id=617653,
+                    rating=random.randint(1,9),
+                    date=today.isoformat()
+                )
+    yesterday = today - datetime.timedelta(days=1)
+    for x in range(10):
+        Rating.objects.create(
+                    user=user,
+                    movie_id=617653,
+                    rating=random.randint(1,9),
+                    date=yesterday.isoformat()
+                )
+    one_week_ago = today - datetime.timedelta(days=7)
+    for x in range(14):
+        Rating.objects.create(
+                    user=user,
+                    movie_id=617653,
+                    rating=random.randint(4,9),
+                    date=one_week_ago.isoformat()
+                )
+    return HttpResponse("ok")

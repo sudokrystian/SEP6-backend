@@ -47,4 +47,7 @@ urlpatterns = [
     path('login', jwt_views.TokenObtainPairView.as_view(), name='Obtain the token'),
     # Refresh JWT token
     path('login/refresh/', jwt_views.TokenRefreshView.as_view(), name='Refresh the token'),
+
+    # Development ===========================================================================================
+    path('fakeratings', views.test, name="Adds fake data to ratings")
 ]
