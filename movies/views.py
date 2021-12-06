@@ -17,8 +17,6 @@ API_KEY = "ea8b367c3b33beb9d31bc05cd0726c57"
 API_URL = "https://api.themoviedb.org/3/"
 
 # Main page
-
-
 def getIndex(request):
     template = loader.get_template('./main/index.html')
     return HttpResponse(template.render())
@@ -113,7 +111,6 @@ class PeopleByName(APIView):
 class AddRating(APIView):
     permission_class = (IsAuthenticated,)
     # Add a new rating
-
     def put(self, request):
         try:
             json_data = json.loads(request.body)
@@ -158,12 +155,13 @@ class MovieRating(APIView):
 
 
 class UserRatings(APIView):
-    permission_class = (IsAuthenticated,)
+    permission_class = [IsAuthenticated]
     # Get all the ratings given away by the user
 
     def get(self, request):
         user = User.objects.get(pk=request.user.id)
         ratings = Rating.objects.filter(user=user).values()
+        print(ratings.dates)
         if(len(ratings) != 0):
             return HttpResponse(ratings, status=200)
         else:
