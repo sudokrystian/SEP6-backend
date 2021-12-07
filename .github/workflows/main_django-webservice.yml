@@ -7,7 +7,7 @@ name: Build and deploy Python app to Azure Web App - django-webservice
 on:
   push:
     branches:
-      - deplyoment-fix
+      - main
   workflow_dispatch:
 
 jobs:
