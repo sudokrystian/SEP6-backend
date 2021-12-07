@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
 import requests
+from types import SimpleNamespace
 import json
 
 # Only for development ===========================
@@ -241,28 +242,17 @@ class MovieLists(APIView):
         lists_by_user = MovieList.objects.filter(user=request.user.id).values()
         dictionary = {}
         for list in lists_by_user:
+            # list_object = {"list_id":list['id'], "list_name":list['list_name']}
             movie_id = list['movie_id']
-            movie = getMovieById(movie_id).content
+            movie = getMovieById(movie_id).json()
+            print(movie)
             if list['list_name'] not in dictionary:
                 dictionary[list['list_name']] = []
-            dictionary[list['list_name']].append(model_to_dict(movie))
+            dictionary[list['list_name']].append(movie)
         if(len(lists_by_user) > 0):
             return HttpResponse(json.dumps(dictionary))
         else:
             return HttpResponse("No movie lists found for the " + str(request.user), status=404)
-    # def get(self, request):
-    #     lists_by_user = MovieList.objects.filter(user=request.user.id).values()
-    #     dictionary = {}
-    #     for list in lists_by_user:
-    #         movie_id = list['movie_id']
-    #         movie = getMovieById(movie_id).content
-    #         if list['list_name'] not in dictionary:
-    #             dictionary[list['list_name']] = []
-    #         dictionary[list['list_name']].append(model_to_dict(movie))
-    #     if(len(lists_by_user) > 0):
-    #         return HttpResponse(json.dumps(dictionary))
-    #     else:
-    #         return HttpResponse("No movie lists found for the " + str(request.user), status=404)
     def put(self, request):
         try:
             json_data = json.loads(request.body)
