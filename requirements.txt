@@ -4,3 +4,4 @@ json5==0.9.6
 jsonschema==4.2.1
 djangorestframework==3.12.4
 djangorestframework-simplejwt==4.7.2
+pytz
