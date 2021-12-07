@@ -9,6 +9,8 @@ from django.shortcuts import get_object_or_404
 
 from movies.models import MovieList, Rating
 
+from .movie_list_model import MovieListModel
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -237,22 +239,25 @@ class UserRatings(APIView):
 
 class MovieLists(APIView):
     permission_classes = [IsAuthenticated]
-    # Get movie list for the user or create a new movie list
+    # Get movie list for the user
     def get(self, request):
         lists_by_user = MovieList.objects.filter(user=request.user.id).values()
-        dictionary = {}
+        new_list = []
         for list in lists_by_user:
-            # list_object = {"list_id":list['id'], "list_name":list['list_name']}
             movie_id = list['movie_id']
-            movie = getMovieById(movie_id).json()
-            print(movie)
+            list['movie'] = getMovieById(movie_id).json()
+            new_list.append(list)
+        dictionary = {}
+        for list in new_list:
+            movie_id = list['movie_id']
             if list['list_name'] not in dictionary:
                 dictionary[list['list_name']] = []
-            dictionary[list['list_name']].append(movie)
+            dictionary[list['list_name']].append(list)
         if(len(lists_by_user) > 0):
             return HttpResponse(json.dumps(dictionary))
         else:
             return HttpResponse("No movie lists found for the " + str(request.user), status=404)
+    # Create a new movie list
     def put(self, request):
         try:
             json_data = json.loads(request.body)
@@ -293,7 +298,6 @@ def getMovieById(movie_id):
     parameters = {'api_key': API_KEY}
     api_path = "movie/" + str(movie_id)
     newRequest = API_URL + api_path
-    print(newRequest)
     request_answer = requests.get(url=newRequest, params=parameters)
     return request_answer
 
