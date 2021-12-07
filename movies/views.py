@@ -31,8 +31,6 @@ def getIndex(request):
     return HttpResponse(template.render())
 
 # Movies ================================================================================================
-
-
 class TrendingMovies(APIView):
     # Get trending movies
     def get(self, request):
@@ -51,8 +49,8 @@ class MovieById(APIView):
     def get(self, request, movie_id):
         parameters = {'api_key': API_KEY}
         api_path = "movie/" + str(movie_id)
-        request = API_URL + api_path
-        request_answer = requests.get(url=request, params=parameters)
+        newRequest = API_URL + api_path
+        request_answer = requests.get(url=newRequest, params=parameters)
         if(request_answer.ok):
             return HttpResponse(request_answer)
         else:
@@ -86,8 +84,6 @@ class MovieByName(APIView):
 # =======================================================================================================
 
 # People ================================================================================================
-
-
 class PersonById(APIView):
     # Get a person by id
     def get(self, request, person_id):
@@ -110,6 +106,18 @@ class PeopleByName(APIView):
         request_answer = requests.get(request, params=parameters)
         if(request_answer.ok):
             return HttpResponse(request_answer)
+        else:
+            return HttpResponse(request_answer, status=404)
+
+class TrendingPeople(APIView):
+    # Get trending movies
+    def get(self, request):
+        parameters = {'api_key': API_KEY}
+        api_path = "trending/person/week"
+        request = API_URL + api_path
+        request_answer = requests.get(url=request, params=parameters)
+        if(request_answer.ok):
+            return HttpResponse(request_answer, status=status.HTTP_200_OK)
         else:
             return HttpResponse(request_answer, status=404)
 # =======================================================================================================
@@ -196,6 +204,36 @@ class UserRatings(APIView):
 # Movie lists =========================================================================================
 
 
+# class MovieLists(APIView):
+#     permission_classes = [IsAuthenticated]
+#     # Get movie list for the user or create a new movie list
+#     def get(self, request):
+#         lists_by_user = MovieList.objects.filter(user=request.user.id).values()
+#         dictionary = {}
+#         for list in lists_by_user:
+#             movie_id = list['movie_id']
+#             movie = movie_id
+#             if list['list_name'] not in dictionary:
+#                 dictionary[list['list_name']] = []
+#             dictionary[list['list_name']].append(model_to_dict(movie))
+#         if(len(lists_by_user) > 0):
+#             return HttpResponse(json.dumps(dictionary))
+#         else:
+#             return HttpResponse("No movie lists found for the " + str(request.user), status=404)
+#     def put(self, request):
+#         try:
+#             json_data = json.loads(request.body)
+#             movie_id = json_data['movie_id']
+#             list_name = json_data['list_name']
+#             list = MovieList.objects.create(
+#                 user=User.objects.get(pk=request.user.id),
+#                 movie_id=movie_id,
+#                 list_name=list_name
+#             )
+#             return HttpResponse(list, status=200)
+#         except KeyError:
+#             return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_name:'value'}", status=400)
+
 class MovieLists(APIView):
     permission_classes = [IsAuthenticated]
     # Get movie list for the user or create a new movie list
@@ -204,14 +242,27 @@ class MovieLists(APIView):
         dictionary = {}
         for list in lists_by_user:
             movie_id = list['movie_id']
-            movie = movie_id
+            movie = getMovieById(movie_id).content
             if list['list_name'] not in dictionary:
                 dictionary[list['list_name']] = []
             dictionary[list['list_name']].append(model_to_dict(movie))
         if(len(lists_by_user) > 0):
             return HttpResponse(json.dumps(dictionary))
         else:
-            return HttpResponse("No movie lists found for the user with an ID " + str(request.user.id), status=404)
+            return HttpResponse("No movie lists found for the " + str(request.user), status=404)
+    # def get(self, request):
+    #     lists_by_user = MovieList.objects.filter(user=request.user.id).values()
+    #     dictionary = {}
+    #     for list in lists_by_user:
+    #         movie_id = list['movie_id']
+    #         movie = getMovieById(movie_id).content
+    #         if list['list_name'] not in dictionary:
+    #             dictionary[list['list_name']] = []
+    #         dictionary[list['list_name']].append(model_to_dict(movie))
+    #     if(len(lists_by_user) > 0):
+    #         return HttpResponse(json.dumps(dictionary))
+    #     else:
+    #         return HttpResponse("No movie lists found for the " + str(request.user), status=404)
     def put(self, request):
         try:
             json_data = json.loads(request.body)
@@ -219,7 +270,7 @@ class MovieLists(APIView):
             list_name = json_data['list_name']
             list = MovieList.objects.create(
                 user=User.objects.get(pk=request.user.id),
-                movie=movie_id,
+                movie_id=movie_id,
                 list_name=list_name
             )
             return HttpResponse(list, status=200)
@@ -245,6 +296,16 @@ class RegisterUser(APIView):
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}", status=400)
 
+
+# Utility =====================================================================================================
+
+def getMovieById(movie_id):
+    parameters = {'api_key': API_KEY}
+    api_path = "movie/" + str(movie_id)
+    newRequest = API_URL + api_path
+    print(newRequest)
+    request_answer = requests.get(url=newRequest, params=parameters)
+    return request_answer
 
 
 # Development =================================================================================================
