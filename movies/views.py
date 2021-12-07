@@ -205,41 +205,9 @@ class UserRatings(APIView):
 # ======================================================================================================
 
 # Movie lists =========================================================================================
-
-
-# class MovieLists(APIView):
-#     permission_classes = [IsAuthenticated]
-#     # Get movie list for the user or create a new movie list
-#     def get(self, request):
-#         lists_by_user = MovieList.objects.filter(user=request.user.id).values()
-#         dictionary = {}
-#         for list in lists_by_user:
-#             movie_id = list['movie_id']
-#             movie = movie_id
-#             if list['list_name'] not in dictionary:
-#                 dictionary[list['list_name']] = []
-#             dictionary[list['list_name']].append(model_to_dict(movie))
-#         if(len(lists_by_user) > 0):
-#             return HttpResponse(json.dumps(dictionary))
-#         else:
-#             return HttpResponse("No movie lists found for the " + str(request.user), status=404)
-#     def put(self, request):
-#         try:
-#             json_data = json.loads(request.body)
-#             movie_id = json_data['movie_id']
-#             list_name = json_data['list_name']
-#             list = MovieList.objects.create(
-#                 user=User.objects.get(pk=request.user.id),
-#                 movie_id=movie_id,
-#                 list_name=list_name
-#             )
-#             return HttpResponse(list, status=200)
-#         except KeyError:
-#             return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_name:'value'}", status=400)
-
-class MovieLists(APIView):
+class MovieListsDetailes(APIView):
     permission_classes = [IsAuthenticated]
-    # Get movie list for the user
+    # Get a movie list with all the details
     def get(self, request):
         lists_by_user = MovieList.objects.filter(user=request.user.id).values()
         new_list = []
@@ -254,7 +222,22 @@ class MovieLists(APIView):
                 dictionary[list['list_name']] = []
             dictionary[list['list_name']].append(list)
         if(len(lists_by_user) > 0):
-            return HttpResponse(json.dumps(dictionary))
+            values = dictionary.values()
+            json_values = []
+            for val in values:
+                json_values.append(val)
+            return HttpResponse(json.dumps(json_values))
+        else:
+            return HttpResponse("No movie lists found for the " + str(request.user), status=404)
+
+class MovieLists(APIView):
+    permission_classes = [IsAuthenticated]
+    # Get movie list for the user
+    def get(self, request):
+        lists_by_user = MovieList.objects.filter(user=request.user.id).values()
+        if(len(lists_by_user) > 0):
+            serialized_values = json.dumps(list(lists_by_user), cls=DjangoJSONEncoder)
+            return HttpResponse(serialized_values)
         else:
             return HttpResponse("No movie lists found for the " + str(request.user), status=404)
     # Create a new movie list
@@ -274,7 +257,6 @@ class MovieLists(APIView):
 # ======================================================================================================
 
 # User =================================================================================================
-
 class RegisterUser(APIView):
     # Register the user
     def put(self, request):

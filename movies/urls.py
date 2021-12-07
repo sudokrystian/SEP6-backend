@@ -39,6 +39,8 @@ urlpatterns = [
     # Movie lists ==========================================================================================
     # /list
     path('list', views.MovieLists.as_view(), name='Find the lists for the user or create a new one'),
+    # /list/details
+    path('list/details', views.MovieListsDetailes.as_view(), name='Find detailed lists for the user'),
 
     # User =================================================================================================
     # /register
