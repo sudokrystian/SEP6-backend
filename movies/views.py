@@ -50,10 +50,12 @@ class TrendingMovies(APIView):
 class MovieById(APIView):
     # Get movie by id
     def get(self, request, movie_id):
+        print("Getting movie by ID")
         parameters = {'api_key': API_KEY}
         api_path = "movie/" + str(movie_id)
         newRequest = API_URL + api_path
         request_answer = requests.get(url=newRequest, params=parameters)
+        print(request_answer)
         if(request_answer.ok):
             return HttpResponse(request_answer)
         else:
@@ -79,6 +81,17 @@ class MovieByName(APIView):
         parameters = {"api_key": API_KEY,
                       "page": page_number, "query": movie_name}
         request = API_URL + "search/movie"
+        request_answer = requests.get(request, params=parameters)
+        if(request_answer.ok):
+            return HttpResponse(request_answer)
+        else:
+            return HttpResponse(request_answer, status=404)
+
+class MovieImg(APIView):
+    # Get movie by name
+    def get(self, request, movie_id):
+        parameters = {"api_key": API_KEY}
+        request = API_URL + "movie/" + str(movie_id) + "/images"
         request_answer = requests.get(request, params=parameters)
         if(request_answer.ok):
             return HttpResponse(request_answer)

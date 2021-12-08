@@ -9,6 +9,8 @@ urlpatterns = [
     # Movies ================================================================================================
     # /movies/{movie_id}/
     path('movies/<int:movie_id>/', views.MovieById.as_view(), name='Movie by ID'),
+    # /movies/{movie_id}/images
+    path('movies/<int:movie_id>/images', views.MovieImg.as_view(), name='Get movie mages by movie ID'),
     # /movies/{movie_id}/credits
     path('movies/<int:movie_id>/credits', views.MovieCrew.as_view(), name='Get movie crew'),
     # /movies/trending
