@@ -1,22 +1,18 @@
 from django.conf import settings
 from django.template import loader
-from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
-from django.http import HttpResponse
-from django.contrib.auth.models import User
+from django.core import serializers
 from django.forms.models import model_to_dict
+from django.http import HttpResponse, JsonResponse
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 
-from movies.models import MovieList, Rating
-
-from .movie_list_model import MovieListModel
-
+from movies.models import MovieList, MovieInList, Rating
 from rest_framework import status
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 import requests
-from types import SimpleNamespace
 import json
 
 # Only for development ===========================
@@ -50,12 +46,7 @@ class TrendingMovies(APIView):
 class MovieById(APIView):
     # Get movie by id
     def get(self, request, movie_id):
-        print("Getting movie by ID")
-        parameters = {'api_key': API_KEY}
-        api_path = "movie/" + str(movie_id)
-        newRequest = API_URL + api_path
-        request_answer = requests.get(url=newRequest, params=parameters)
-        print(request_answer)
+        request_answer = getMovieById(movie_id)
         if(request_answer.ok):
             return HttpResponse(request_answer)
         else:
@@ -92,6 +83,17 @@ class MovieImg(APIView):
     def get(self, request, movie_id):
         parameters = {"api_key": API_KEY}
         request = API_URL + "movie/" + str(movie_id) + "/images"
+        request_answer = requests.get(request, params=parameters)
+        if(request_answer.ok):
+            return HttpResponse(request_answer)
+        else:
+            return HttpResponse(request_answer, status=404)
+
+class MovieSimilar(APIView):
+    # Get similiar movies
+    def get(self, request, movie_id):
+        parameters = {"api_key": API_KEY}
+        request = API_URL + "movie/" + str(movie_id) + "/similar"
         request_answer = requests.get(request, params=parameters)
         if(request_answer.ok):
             return HttpResponse(request_answer)
@@ -218,28 +220,21 @@ class UserRatings(APIView):
 # ======================================================================================================
 
 # Movie lists =========================================================================================
-class MovieListsDetailes(APIView):
+class MovieListsDetails(APIView):
     permission_classes = [IsAuthenticated]
     # Get a movie list with all the details
     def get(self, request):
-        lists_by_user = MovieList.objects.filter(user=request.user.id).values()
-        new_list = []
+        lists_by_user = MovieList.objects.filter(user=request.user.id)
+        detailed_lists = []
         for list in lists_by_user:
-            movie_id = list['movie_id']
-            list['movie'] = getMovieById(movie_id).json()
-            new_list.append(list)
-        dictionary = {}
-        for list in new_list:
-            movie_id = list['movie_id']
-            if list['list_name'] not in dictionary:
-                dictionary[list['list_name']] = []
-            dictionary[list['list_name']].append(list)
-        if(len(lists_by_user) > 0):
-            values = dictionary.values()
-            json_values = []
-            for val in values:
-                json_values.append(val)
-            return HttpResponse(json.dumps(json_values))
+            container = {"list_id": list.id, "list_name": list.list_name, "movies": []}
+            movies_in_list = MovieInList.objects.filter(list=list)
+            for movie in movies_in_list:
+                movie_json = getMovieById(movie.movie_id).json()
+                container['movies'].append(movie_json)
+            detailed_lists.append(container)
+        if(len(detailed_lists) != 0):
+            return JsonResponse(detailed_lists, safe=False)
         else:
             return HttpResponse("No movie lists found for the " + str(request.user), status=404)
 
@@ -257,20 +252,52 @@ class MovieLists(APIView):
     def put(self, request):
         try:
             json_data = json.loads(request.body)
-            movie_id = json_data['movie_id']
             list_name = json_data['list_name']
             list = MovieList.objects.create(
                 user=User.objects.get(pk=request.user.id),
-                movie_id=movie_id,
                 list_name=list_name
             )
             return HttpResponse(list, status=200)
         except KeyError:
-            return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_name:'value'}", status=400)
+            return HttpResponse("JSON format is incorrect. Please use {list_name:'value'}", status=400)
+
+class MoviesInList(APIView):
+    permission_classes = [IsAuthenticated]
+    # Get movies in the list for the user
+    def get(self, request, list_id):
+        list = MovieList.objects.get(pk=list_id)
+        data = serializers.serialize("json", MovieInList.objects.filter(list=list))
+        transformed_data = json.loads(data)
+        arr = []
+        for entry in transformed_data:
+            arr.append(entry['fields'])
+        if(len(arr) != 0):
+            return JsonResponse(arr, safe=False)
+        else:
+            return HttpResponse("No movie lists found for the " + str(request.user), status=404)
+   
+
+class MovieAddToList(APIView):
+    permission_classes = [IsAuthenticated]
+    # Add a movie to an existing list
+    def put(self, request):
+            try:
+                json_data = json.loads(request.body)
+                list_id = json_data['list_id']
+                movie_id = json_data['movie_id']
+                list = MovieList.objects.get(pk=list_id)
+                list = MovieInList.objects.create(
+                    list=list,
+                    movie_id=movie_id
+                )
+                return HttpResponse(list, status=200)
+            except KeyError:
+                return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_id:'value'}", status=400)
 # ======================================================================================================
 
 # User =================================================================================================
 class RegisterUser(APIView):
+    permission_classes = [AllowAny]
     # Register the user
     def put(self, request):
         json_data = json.loads(request.body)
@@ -279,10 +306,13 @@ class RegisterUser(APIView):
             username = json_data['username']
             email = json_data['email']
             password = json_data['password']
-            user = User.objects.create_user(username, email, password)
-            # If unique constrains fail server will return 500
-            user.save()
-            return HttpResponse("User " + username + " registered", status=200)
+            if User.objects.filter(username=username).exists():
+                existing_user = User.objects.filter(username=username)
+                return HttpResponse("User with username " + str(existing_user) + " already exists", status=403)
+            else:
+                user = User.objects.create_user(username, email, password)
+                user.save()
+                return HttpResponse(status=201)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}", status=400)
 

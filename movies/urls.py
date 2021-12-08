@@ -13,6 +13,8 @@ urlpatterns = [
     path('movies/<int:movie_id>/images', views.MovieImg.as_view(), name='Get movie mages by movie ID'),
     # /movies/{movie_id}/credits
     path('movies/<int:movie_id>/credits', views.MovieCrew.as_view(), name='Get movie crew'),
+    # /movies/{movie_id}/similar
+    path('movies/<int:movie_id>/similar', views.MovieSimilar.as_view(), name='Get similar movies'),
     # /movies/trending
     path('movies/trending', views.TrendingMovies.as_view(), name='Get trending movies'),
     # /search/movie/page/<int:page>/name/<str:name>
@@ -42,7 +44,12 @@ urlpatterns = [
     # /list
     path('list', views.MovieLists.as_view(), name='Find the lists for the user or create a new one'),
     # /list/details
-    path('list/details', views.MovieListsDetailes.as_view(), name='Find detailed lists for the user'),
+    path('list/details', views.MovieListsDetails.as_view(), name='Find detailed lists for the user'),
+    # /list/<int:list_id>/movies
+    path('list/<int:list_id>/movies', views.MoviesInList.as_view(), name='Find the movies for the specified list'),
+     # /list/movies
+    path('list/movies', views.MovieAddToList.as_view(), name='Add movie to the existing list'),
+
 
     # User =================================================================================================
     # /register
