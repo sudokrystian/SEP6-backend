@@ -160,7 +160,7 @@ class AddRating(APIView):
                 movie_id=movie_id,
                 rating=rating
             )
-            return HttpResponse(rating, status=200)
+            return HttpResponse(status=201)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', rating:'value'}", status=400)
     # Update the current rating of the movie
@@ -257,7 +257,7 @@ class MovieLists(APIView):
                 user=User.objects.get(pk=request.user.id),
                 list_name=list_name
             )
-            return HttpResponse(list, status=200)
+            return HttpResponse(status=201)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {list_name:'value'}", status=400)
 
@@ -286,11 +286,18 @@ class MovieAddToList(APIView):
                 list_id = json_data['list_id']
                 movie_id = json_data['movie_id']
                 list = MovieList.objects.get(pk=list_id)
-                list = MovieInList.objects.create(
+                movie_in_list = MovieInList.objects.filter(
                     list=list,
                     movie_id=movie_id
                 )
-                return HttpResponse(list, status=200)
+                if(len(movie_in_list) == 0):
+                    new_movie_in_list = MovieInList.objects.create(
+                        list=list,
+                        movie_id=movie_id
+                    )
+                    return HttpResponse(status=201)
+                else:
+                    return HttpResponse("Movie with id " + str(movie_id) + " already exists in the list " + list.list_name,status=403)
             except KeyError:
                 return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_id:'value'}", status=400)
 # ======================================================================================================
