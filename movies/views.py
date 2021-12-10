@@ -155,7 +155,6 @@ class TrendingPeople(APIView):
 class AddRating(APIView):
     permission_classes = [IsAuthenticated]
     # Add a new rating
-
     def put(self, request):
         try:
             json_data = json.loads(request.body)
@@ -168,21 +167,21 @@ class AddRating(APIView):
             rating = Rating.objects.create(
                 user=user,
                 movie_id=movie_id,
-                rating=rating
+                rating=rating,
+                date= datetime.datetime.now().isoformat()
             )
             return HttpResponse(status=201)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', rating:'value'}", status=400)
     # Update the current rating of the movie
-
     def post(self, request):
         try:
             json_data = json.loads(request.body)
-            user = User.objects.get(pk=request.user.id)
             rating_id = json_data['rating_id']
             newRating = json_data['rating']
             rating = get_object_or_404(Rating, pk=rating_id)
             rating.rating = newRating
+            rating.date = datetime.datetime.now().isoformat()
             # If the user voted for this movie already, return 409
             rating.save()
             return HttpResponse(rating, status=200)
@@ -193,7 +192,6 @@ class AddRating(APIView):
 class UserMovieRating(APIView):
     permission_classes = [IsAuthenticated]
     # Get ratings for the movie for the specified user
-
     def get(self, request, movie_id):
         user = User.objects.get(pk=request.user.id)
         ratings = Rating.objects.filter(
@@ -394,7 +392,6 @@ class Comments(APIView):
 class CommentAdd(APIView):
     permission_classes = [IsAuthenticated]
     # Add a comment
-
     def put(self, request):
         json_data = json.loads(request.body)
         try:
@@ -402,7 +399,7 @@ class CommentAdd(APIView):
             comment = json_data['comment']
             user = User.objects.get(pk=request.user.id)
             Comment.objects.create(
-                user=user, movie_id=movie_id, comment=comment)
+                user=user, movie_id=movie_id, comment=comment, date=datetime.datetime.now().isoformat())
             return HttpResponse(status=201)
 
         except KeyError:
