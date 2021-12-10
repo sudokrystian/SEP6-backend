@@ -54,6 +54,11 @@ urlpatterns = [
     # /list/{list_id}/movies/{movie_id}
     path('list/<int:list_id>/movies/<int:movie_id>', views.MovieDeleteFromList.as_view(), name='Delete movie from an existing list'),
 
+    # Comments =================================================================================================
+    # /movies/{movie_id}/comments
+    path('movies/<int:movie_id>/comments', views.Comments.as_view(), name='Get comments for the movie'),
+    # /movies/{movie_id}/comments
+    path('movies/comments', views.CommentAdd.as_view(), name='Add comment to the movie'),
 
     # User =================================================================================================
     # /register
