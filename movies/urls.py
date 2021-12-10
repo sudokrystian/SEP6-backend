@@ -43,12 +43,16 @@ urlpatterns = [
     # Movie lists ==========================================================================================
     # /list
     path('list', views.MovieLists.as_view(), name='Find the lists for the user or create a new one'),
+    # /list/<int:list_id>
+    path('list/<int:list_id>', views.MovieListDelete.as_view(), name='Delete the list'),
     # /list/details
     path('list/details', views.MovieListsDetails.as_view(), name='Find detailed lists for the user'),
     # /list/<int:list_id>/movies
     path('list/<int:list_id>/movies', views.MoviesInList.as_view(), name='Find the movies for the specified list'),
-     # /list/movies
+    # /list/movies
     path('list/movies', views.MovieAddToList.as_view(), name='Add movie to the existing list'),
+    # /list/{list_id}/movies/{movie_id}
+    path('list/<int:list_id>/movies/<int:movie_id>', views.MovieDeleteFromList.as_view(), name='Delete movie from an existing list'),
 
 
     # User =================================================================================================

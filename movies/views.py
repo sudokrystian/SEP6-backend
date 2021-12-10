@@ -261,6 +261,13 @@ class MovieLists(APIView):
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {list_name:'value'}", status=400)
 
+class MovieListDelete(APIView):
+    permission_classes = [IsAuthenticated]
+    def delete(self, request, list_id):
+        movie_list = get_object_or_404(MovieList, pk=list_id)
+        movie_list.delete()
+        return HttpResponse(status=200)
+
 class MoviesInList(APIView):
     permission_classes = [IsAuthenticated]
     # Get movies in the list for the user
@@ -300,6 +307,15 @@ class MovieAddToList(APIView):
                     return HttpResponse("Movie with id " + str(movie_id) + " already exists in the list " + list.list_name,status=403)
             except KeyError:
                 return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', list_id:'value'}", status=400)
+
+class MovieDeleteFromList(APIView):
+    permission_classes = [IsAuthenticated]
+    # Remove the movie from the list
+    def delete(self, request, list_id, movie_id):
+        list = MovieList.objects.get(pk=list_id)
+        movie_in_list = get_object_or_404(MovieInList, list=list, movie_id=movie_id)
+        movie_in_list.delete()
+        return HttpResponse(status=201)
 # ======================================================================================================
 
 # User =================================================================================================
