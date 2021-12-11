@@ -27,6 +27,8 @@ urlpatterns = [
     path('people/trending', views.TrendingPeople.as_view(), name='Get trending people'),
     # search/people/page/<int:page>/name/<str:name>
     path('search/people/page/<int:page_number>/name/<str:person_name>', views.PeopleByName.as_view(), name='Find people by name`'),
+    # people/{person_id}/credits
+    path('people/<int:person_id>/credits', views.PersonCredits.as_view(), name='Get credits for the person'),
 
 
     # Ratings ==============================================================================================

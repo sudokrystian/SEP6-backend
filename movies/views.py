@@ -122,6 +122,17 @@ class PersonById(APIView):
         else:
             return HttpResponse(request_answer, status=404)
 
+class PersonCredits(APIView):
+    # Get person credits (f.e movies that he starred in)
+    def get(self, request, person_id):
+        parameters = {'api_key': API_KEY}
+        api_path = "person/" + str(person_id) + "/movie_credits"
+        request = API_URL + api_path
+        request_answer = requests.get(url=request, params=parameters)
+        if(request_answer.ok):
+            return HttpResponse(request_answer)
+        else:
+            return HttpResponse(request_answer, status=404)
 
 class PeopleByName(APIView):
     # Find people by name
