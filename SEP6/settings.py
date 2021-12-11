@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,7 +31,6 @@ ALLOWED_HOSTS = [
     'django-webservice.azurewebsites.net',
     'localhost'
 ]
-
 
 # Application definition
 
@@ -85,10 +85,21 @@ WSGI_APPLICATION = 'SEP6.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'movies.db',
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        'NAME': "postgres",
+        "HOST": "movietoo.postgres.database.azure.com",
+        "PORT": "5432",
+        "USER": "django_user",
+        "PASSWORD": os.environ['SECRET_KEY']
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         "ENGINE": "django.db.backends.postgresql_psycopg2",
+#         'NAME': './movies.db',
+#     }
+# }
 
 # JWT token settings
 SIMPLE_JWT = {
