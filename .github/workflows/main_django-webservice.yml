@@ -40,6 +40,8 @@ jobs:
           pip freeze > requirements.txt
           pip install -r requirements.txt
       - name: Run Tests
+        env:
+            DATABASE_PASS: ${{ secrets.DATABASE_PASS }}
         run: |
           python manage.py test
       
