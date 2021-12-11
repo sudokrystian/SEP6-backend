@@ -82,7 +82,6 @@ WSGI_APPLICATION = 'SEP6.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -90,18 +89,9 @@ DATABASES = {
         "HOST": "movietoo.postgres.database.azure.com",
         "PORT": "5432",
         "USER": "django_user",
-        # "PASSWORD": os.environ['DATABASE_PASS']
-        "PASSWORD": "MicrosoftSucks!"
-
+        "PASSWORD": os.environ['DATABASE_PASS']
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         "ENGINE": "django.db.backends.postgresql_psycopg2",
-#         'NAME': './movies.db',
-#     }
-# }
 
 # JWT token settings
 SIMPLE_JWT = {
