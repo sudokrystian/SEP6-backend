@@ -89,7 +89,7 @@ DATABASES = {
         "HOST": "movietoo.postgres.database.azure.com",
         "PORT": "5432",
         "USER": "django_user",
-        "PASSWORD": os.environ['DATABASE_PASS']
+        "PASSWORD": "MicrosoftSucks!",
     }
 }
 
