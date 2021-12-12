@@ -1,4 +1,4 @@
-Django==3.2.9
+Django==3.2.10
 django-cors-headers==3.10.0
 requests==2.26.0
 json5==0.9.6
