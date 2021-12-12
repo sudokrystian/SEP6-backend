@@ -377,7 +377,8 @@ class RegisterUser(APIView):
             else:
                 user = User.objects.create_user(username, email, password)
                 user.save()
-                return HttpResponse(status=201)
+                print("User saved!")
+                return HttpResponse(json.dumps({"success": True}), status=201)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}", status=400)
 
