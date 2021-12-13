@@ -1,31 +1,81 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap" rel="stylesheet">
+
 <div class="api-div">
-  <h2>Welcome to the Movies API</h2>
-  <h4>Currently available endpoints:</h4>
+  <div class="navbar">
+    <h2 class="api-title">Welcome to the Movies API</h2>
+  </div>
+  <h3 class="list-title">Currently available endpoints:</h3>
   <ul>
-    <li>Last week tranding movies: /movies/trending</li>
+    <hr>
+    <h4>Movies:</h4>
     <li>Get movie by ID: /movies/{movie_id}</li>
+    <li>Get movie images: /movies/{movie_id}/images</li>
     <li>Get movie crew by movie ID: /movies/{movie_id}/credits</li>
+    <li>Find similar movies: /movies/{movie_id}/similar</li>
+    <li>Last week tranding movies: /movies/trending</li>
+    <li>Find movies by name: /search/movie/page/{page_number}/name/{movie_name}</li>
+    <hr>
+    <h4>People:</h4>
     <li>Get person by ID: /people/{person_id}</li>
+    <li>Get people trending this week: people/trending</li>
+    <li>Find people by name: search/people/page/{page_number}/name/{person_name}</li>
+    <li>Find person credits: people/{person_id}/credits</li>
+    <hr>
+    <h4>Ratings:</h4>
     <li>Get all the ratings for the movie: rating/movies/{movie_id}</li>
+    <li>Get average rating of the movies the person starred in: /rating/person</li>
     <li>Get the movie rating given by the logged in user: /rating/user/{movie_id}</li>
     <li>Get all the ratings given away by the user: /rating/user</li>
     <li>Put new rating to the movie: /rating</li>
-    <li>Get the lists for the user or put a new one: /list</li>
-    <li>Put the user in (register): /register</li>
-    <li>Post the user to log in: /login</li>
-    <li>Logout: /logout</li>
+    <hr>
+    <h4>Movie lists</h4>
+    <li>Find the lists for the user or create a new one: /list</li>
+    <li>Delete the list: /list/{list_id}</li>
+    <li>Find detailed lists for the user: /list/details</li>
+    <li>Find the movies for the specified list: /list/{list_id}/movies</li>
+    <li>Add movie to the existing list: /list/movies</li>
+    <li>Delete movie from an existing list: /list/{list_id}/movies/{movie_id}</li>
+    <hr>
+    <h4>Comments</h4>
+    <li>Get comments for the movie or put a new one: /movies/{movie_id}/comments</li>
+    <hr>
+    <h4>User endpoints:</h4>
+    <li>Crate a new user (register): /register</li>
+    <li>Obtain a token (login): /login</li>
+    <li>Refresh your token: login/refresh/</li>
   </ul>
 </div>
 
 <style>
+  body {
+    margin: 0;
+    background-color: #C5C6C7;
+    font-family: 'Montserrat', sans-serif;
+    /* color: #fff; */
+  }
+
+  .navbar {
+    height: 80px;
+    background-color: #0B0C10;
+  }
+
+  .api-title {
+    padding-left: 10px;
+    color: #fff;
+  }
+
+  .list-title {
+    padding-left: 10px;
+  }
+
   .api-div {
     display: flex;
     flex-direction: column;
-    font-family: "Open Sans", sans-serif;
   }
+
   h4 {
-    margin: 5px 0px;
+    margin: 5px -30px;
   }
 
   ul {
@@ -34,5 +84,12 @@
 
   li {
     margin: 5px 0px;
+  }
+
+  hr {
+    border: none;
+    border-top: solid #000 1px;
+    width: 100%;
+    margin-left: -30px;
   }
 </style>
