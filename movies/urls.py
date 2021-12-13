@@ -17,7 +17,7 @@ urlpatterns = [
     path('movies/<int:movie_id>/similar', views.MovieSimilar.as_view(), name='Get similar movies'),
     # /movies/trending
     path('movies/trending', views.TrendingMovies.as_view(), name='Get trending movies'),
-    # /search/movie/page/<int:page>/name/<str:name>
+    # /search/movie/page/{page_number}/name/{movie_name}
     path('search/movie/page/<int:page_number>/name/<str:movie_name>', views.MovieByName.as_view(), name='Find movie by name'),
 
     # People ================================================================================================
@@ -25,7 +25,7 @@ urlpatterns = [
     path('people/<int:person_id>/', views.PersonById.as_view(), name='Get person by ID'),
     # people/trending
     path('people/trending', views.TrendingPeople.as_view(), name='Get trending people'),
-    # search/people/page/<int:page>/name/<str:name>
+    # search/people/page/{page_number}/name/{person_name}
     path('search/people/page/<int:page_number>/name/<str:person_name>', views.PeopleByName.as_view(), name='Find people by name`'),
     # people/{person_id}/credits
     path('people/<int:person_id>/credits', views.PersonCredits.as_view(), name='Get credits for the person'),
@@ -47,11 +47,11 @@ urlpatterns = [
     # Movie lists ==========================================================================================
     # /list
     path('list', views.MovieLists.as_view(), name='Find the lists for the user or create a new one'),
-    # /list/<int:list_id>
+    # /list/{list_id}>
     path('list/<int:list_id>', views.MovieListDelete.as_view(), name='Delete the list'),
     # /list/details
     path('list/details', views.MovieListsDetails.as_view(), name='Find detailed lists for the user'),
-    # /list/<int:list_id>/movies
+    # /list/{list_id}/movies
     path('list/<int:list_id>/movies', views.MoviesInList.as_view(), name='Find the movies for the specified list'),
     # /list/movies
     path('list/movies', views.MovieAddToList.as_view(), name='Add movie to the existing list'),
