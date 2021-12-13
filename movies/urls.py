@@ -34,6 +34,8 @@ urlpatterns = [
     # Ratings ==============================================================================================
     # rating/movies/{movie_id}
     path('rating/movie/<int:movie_id>', views.MovieRating.as_view(), name='Get all ratings for the movie'),
+    # /rating/person
+    path('rating/person/<int:person_id>', views.PersonAverageMovieRating.as_view(), name='Get average person rating'),
     # /rating/user/{movie_id}
     path('rating/user/<int:movie_id>', views.UserMovieRating.as_view(), name='Get rating for the movie for the user'),
     # /rating/user

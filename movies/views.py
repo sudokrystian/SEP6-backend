@@ -25,15 +25,11 @@ API_KEY = "ea8b367c3b33beb9d31bc05cd0726c57"
 API_URL = "https://api.themoviedb.org/3/"
 
 # Main page
-
-
 def getIndex(request):
     template = loader.get_template('./main/index.html')
     return HttpResponse(template.render())
 
 # Movies ================================================================================================
-
-
 class TrendingMovies(APIView):
     # Get trending movies
     def get(self, request):
@@ -108,8 +104,6 @@ class MovieSimilar(APIView):
 # =======================================================================================================
 
 # People ================================================================================================
-
-
 class PersonById(APIView):
     # Get a person by id
     def get(self, request, person_id):
@@ -134,6 +128,28 @@ class PersonCredits(APIView):
             return HttpResponse(request_answer)
         else:
             return HttpResponse(request_answer, status=404)
+
+class PersonAverageMovieRating(APIView):
+    def get(self, reqest, person_id):
+        parameters = {'api_key': API_KEY}
+        api_path = "person/" + str(person_id) + "/movie_credits"
+        request = API_URL + api_path
+        request_answer = requests.get(url=request, params=parameters)
+        if(request_answer.ok):
+            answer_json = request_answer.json()
+            person_ratings = []
+            for movie in answer_json['cast']:
+                ratings = Rating.objects.filter(movie_id=movie['id'])
+                if(len(ratings) > 0):
+                    for rating in ratings:
+                        person_ratings.append(rating.rating)
+            if(len(person_ratings) > 0):
+                return HttpResponse(json.dumps({"avg_rating": sum(person_ratings)/len(person_ratings)}), status=200)
+            else:
+                return HttpResponse("No ratings found for movies for person with ID " + str(person_id), status=404)
+        else:
+            return HttpResponse(request_answer, status=404)
+
 
 
 class PeopleByName(APIView):
@@ -163,8 +179,6 @@ class TrendingPeople(APIView):
 # =======================================================================================================
 
 # Ratings ==============================================================================================
-
-
 class AddRating(APIView):
     permission_classes = [IsAuthenticated]
     # Add a new rating
@@ -207,7 +221,6 @@ class AddRating(APIView):
 class UserMovieRating(APIView):
     permission_classes = [IsAuthenticated]
     # Get ratings for the movie for the specified user
-
     def get(self, request, movie_id):
         user = User.objects.get(pk=request.user.id)
         ratings = Rating.objects.filter(
@@ -296,7 +309,6 @@ class MovieLists(APIView):
         else:
             return HttpResponse("No movie lists found for the " + str(request.user), status=404)
     # Create a new movie list
-
     def put(self, request):
         try:
             json_data = json.loads(request.body)
