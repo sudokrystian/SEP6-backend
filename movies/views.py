@@ -239,12 +239,10 @@ class UserRatings(APIView):
     def get(self, request):
         user = User.objects.get(pk=request.user.id)
         ratings = Rating.objects.filter(user=user)
-        print(ratings)
         if(len(ratings) != 0):
             ratings_json = []
             for rating in ratings:
                 movie = getMovieById(rating.movie_id).json()
-                print(movie)
                 construct = {
                     "id": rating.id,
                     "user_id": rating.user_id,
@@ -256,8 +254,6 @@ class UserRatings(APIView):
                     "movie_overview": movie['overview']
                 }
                 ratings_json.append(construct)
-            # serialized_values = json.dumps(
-            #     list(ratings), cls=DjangoJSONEncoder)
             return HttpResponse(json.dumps(ratings_json), status=200)
         else:
             return HttpResponse("No ratings found", status=404)
@@ -398,7 +394,6 @@ class RegisterUser(APIView):
             else:
                 user = User.objects.create_user(username, email, password)
                 user.save()
-                print("User saved!")
                 return HttpResponse(json.dumps({"success": True}), status=201)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {username:'value', email:'value', password:'value'}", status=400)
