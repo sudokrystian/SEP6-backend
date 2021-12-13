@@ -122,6 +122,7 @@ class PersonById(APIView):
         else:
             return HttpResponse(request_answer, status=404)
 
+
 class PersonCredits(APIView):
     # Get person credits (f.e movies that he starred in)
     def get(self, request, person_id):
@@ -133,6 +134,7 @@ class PersonCredits(APIView):
             return HttpResponse(request_answer)
         else:
             return HttpResponse(request_answer, status=404)
+
 
 class PeopleByName(APIView):
     # Find people by name
@@ -166,6 +168,7 @@ class TrendingPeople(APIView):
 class AddRating(APIView):
     permission_classes = [IsAuthenticated]
     # Add a new rating
+
     def put(self, request):
         try:
             json_data = json.loads(request.body)
@@ -179,12 +182,13 @@ class AddRating(APIView):
                 user=user,
                 movie_id=movie_id,
                 rating=rating,
-                date= datetime.datetime.now().isoformat()
+                date=datetime.datetime.now().isoformat()
             )
             return HttpResponse(status=201)
         except KeyError:
             return HttpResponse("JSON format is incorrect. Please use {movie_id:'value', rating:'value'}", status=400)
     # Update the current rating of the movie
+
     def post(self, request):
         try:
             json_data = json.loads(request.body)
@@ -203,6 +207,7 @@ class AddRating(APIView):
 class UserMovieRating(APIView):
     permission_classes = [IsAuthenticated]
     # Get ratings for the movie for the specified user
+
     def get(self, request, movie_id):
         user = User.objects.get(pk=request.user.id)
         ratings = Rating.objects.filter(
@@ -233,11 +238,27 @@ class UserRatings(APIView):
 
     def get(self, request):
         user = User.objects.get(pk=request.user.id)
-        ratings = Rating.objects.filter(user=user).values()
+        ratings = Rating.objects.filter(user=user)
+        print(ratings)
         if(len(ratings) != 0):
-            serialized_values = json.dumps(
-                list(ratings), cls=DjangoJSONEncoder)
-            return HttpResponse(serialized_values, status=200)
+            ratings_json = []
+            for rating in ratings:
+                movie = getMovieById(rating.movie_id).json()
+                print(movie)
+                construct = {
+                    "id": rating.id,
+                    "user_id": rating.user_id,
+                    "movie_id": rating.movie_id,
+                    "rating": rating.rating,
+                    "date": rating.date,
+                    "movie_name": movie['title'],
+                    "movie_poster": movie['poster_path'],
+                    "movie_overview": movie['overview']
+                }
+                ratings_json.append(construct)
+            # serialized_values = json.dumps(
+            #     list(ratings), cls=DjangoJSONEncoder)
+            return HttpResponse(json.dumps(ratings_json), status=200)
         else:
             return HttpResponse("No ratings found", status=404)
 # ======================================================================================================
@@ -404,6 +425,7 @@ class Comments(APIView):
 class CommentAdd(APIView):
     permission_classes = [IsAuthenticated]
     # Add a comment
+
     def put(self, request):
         json_data = json.loads(request.body)
         try:
